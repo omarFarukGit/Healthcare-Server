@@ -3,8 +3,16 @@ node_modules
 .env.*
 !.env.example
 dist
+# AI Assistant & IDE Configs
+.agents/
+.claude/
+.windsurf/
+.cursor/
+.copilot/
+.aider*
+.llm/
 
-/generated
+generated/
 
 # Lock Files
 pnpm-lock.yaml
