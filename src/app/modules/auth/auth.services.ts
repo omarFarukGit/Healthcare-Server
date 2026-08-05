@@ -119,10 +119,7 @@ const login = async (payload: ILoginUserPayload) => {
 };
 
 const refreshToken = async (token: string) => {
-  const verifiyToken = jwtUtils.verifyToken(
-    token,
-    config.jwt_refresh_secret,
-  );
+  const verifiyToken = jwtUtils.verifyToken(token, config.jwt_refresh_secret);
   if (!verifiyToken?.success || !verifiyToken.data) {
     throw new Error(
       config.node_env === "development"
@@ -167,8 +164,27 @@ const refreshToken = async (token: string) => {
   };
 };
 
+const me = async (email: string) => {
+  const isUserExits = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+    include: {
+      patient: true,
+    },
+    omit: {
+      password: true,
+    },
+  });
+
+  if (!isUserExits) {
+    throw new Error("user not exits");
+  }
+  return isUserExits;
+};
 export const authServices = {
   register,
   login,
   refreshToken,
+  me,
 };

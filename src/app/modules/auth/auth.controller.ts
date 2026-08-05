@@ -96,8 +96,21 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const me = catchAsync(async (req: Request, res: Response) => {
+  const email = req.user?.email;
+  const result = await authServices.me(email as string);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "get user profile successfully",
+    data: result,
+  });
+});
+
 export const authController = {
   register,
   login,
   refreshToken,
+  me,
 };
