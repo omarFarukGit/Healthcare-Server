@@ -6,7 +6,7 @@ dotenv.config({
 });
 
 export default {
-  node_env: process.env.NODE_ENV,
+  node_env: process.env.NODE_ENV as string,
   port: process.env.PORT,
   database_url: process.env.DATABASE_URL,
   bak_url: process.env.APP_URL,
