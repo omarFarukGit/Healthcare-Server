@@ -8,3 +8,7 @@ export interface IRegisterPatientPayload {
   email: string;
   password: string;
 }
+
+export interface IGooleLoginPayload {
+  idToken: string;
+}

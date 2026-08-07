@@ -14,13 +14,13 @@ const register = catchAsync(async (req: Request, res: Response) => {
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: true,
-    maxAge: 60 * 60 * 24,
+    maxAge: 100 * 60 * 60 * 24,
     sameSite: "none",
   });
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: true,
-    maxAge: 60 * 60 * 24,
+    maxAge: 100 * 60 * 60 * 24,
     sameSite: "none",
   });
 
@@ -44,13 +44,13 @@ const login = catchAsync(async (req: Request, res: Response) => {
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: true,
-    maxAge: 60 * 60 * 24,
+    maxAge: 100 * 60 * 60 * 24,
     sameSite: "none",
   });
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: true,
-    maxAge: 60 * 60 * 24,
+    maxAge: 100 * 60 * 60 * 24,
     sameSite: "none",
   });
 
@@ -75,13 +75,13 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: true,
-    maxAge: 60 * 60 * 24,
+    maxAge: 100 * 60 * 60 * 24,
     sameSite: "none",
   });
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: true,
-    maxAge: 60 * 60 * 24,
+    maxAge: 100 * 60 * 60 * 24,
     sameSite: "none",
   });
 
@@ -108,9 +108,39 @@ const me = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const googleLogin = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+  const result = await authServices.googleLogin(payload);
+
+  const { accessToken, refreshToken } = result;
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: true,
+    maxAge: 100 * 60 * 60 * 24,
+    sameSite: "none",
+  });
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    maxAge: 100 * 60 * 60 * 24,
+    sameSite: "none",
+  });
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "user loging successfully",
+    data: {
+      accessToken,
+      refreshToken,
+    },
+  });
+});
+
 export const authController = {
   register,
   login,
   refreshToken,
   me,
+  googleLogin,
 };
