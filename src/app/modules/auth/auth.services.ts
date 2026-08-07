@@ -98,6 +98,10 @@ const login = async (payload: ILoginUserPayload) => {
     throw new Error("your account has been deleted");
   }
 
+  if(user.password===null && user.googleId!==null){
+    throw new Error ('user alread has account registerd with google ,try to login with google')
+  }
+
   const passwordMatch = await bcrypt.compare(password, user.password as string);
   if (!passwordMatch) {
     throw new Error("invaild creadentials");
@@ -203,8 +207,8 @@ const googleLogin = async (payload: IGooleLoginPayload) => {
   let googleIdTokenPayload: TokenPayload | null | undefined = null;
   try {
     const tiket = await googleClient.verifyIdToken({
-      idToken:payload.idToken,
-      audience: config.google_client_id
+      idToken: payload.idToken,
+      audience: config.google_client_id,
     });
     googleIdTokenPayload = tiket.getPayload();
   } catch (error) {
@@ -232,23 +236,66 @@ const googleLogin = async (payload: IGooleLoginPayload) => {
 
   let user = ifPatientExistWithGoogleAuth;
   //user nah thakle create korte hobe
-  if (!user) {
-    user = await prisma.user.create({
-      data: {
-        name: googleIdTokenPayload.name,
+  if (!ifPatientExistWithGoogleAuth) {
+    //credentials user login to google
+    const ifPatientExistWithCredentials = await prisma.user.findUnique({
+      where: {
         email: googleIdTokenPayload.email,
         role: Role.PATIENT,
-        googleId: googleIdTokenPayload.sub,
-        authProvider: AuthProvider.GOOGLE,
-        emailVerified: true,
-        patient: {
-          create: {
-            name: googleIdTokenPayload.name,
-            email: googleIdTokenPayload.email,
-          },
-        },
+        authProvider: AuthProvider.CREDENTIAL,
       },
     });
+
+    if (ifPatientExistWithCredentials) {
+      if (!ifPatientExistWithCredentials.emailVerified) {
+        throw new Error("email not verified");
+      }
+      if (ifPatientExistWithCredentials.status === UserStatus.BLOCKED) {
+        throw new Error("user is blocked");
+      }
+      if (
+        ifPatientExistWithCredentials.isDeleted ||
+        ifPatientExistWithCredentials.status === UserStatus.DELETED
+      ) {
+        throw new Error("user is deleted");
+      }
+      user = await prisma.user.update({
+        where: {
+          id: ifPatientExistWithCredentials.id,
+        },
+        data: {
+          googleId: googleIdTokenPayload.sub,
+        },
+      });
+    } else {
+      user = await prisma.user.create({
+        data: {
+          name: googleIdTokenPayload.name,
+          email: googleIdTokenPayload.email,
+          role: Role.PATIENT,
+          googleId: googleIdTokenPayload.sub,
+          authProvider: AuthProvider.GOOGLE,
+          emailVerified: true,
+          patient: {
+            create: {
+              name: googleIdTokenPayload.name,
+              email: googleIdTokenPayload.email,
+            },
+          },
+        },
+      });
+    }
+  }
+
+  if (!user) {
+    throw new Error("user not found");
+  }
+
+  if (user.status === UserStatus.BLOCKED) {
+    throw new Error("user is blocked");
+  }
+  if (user.isDeleted || user.status === UserStatus.DELETED) {
+    throw new Error("user is deleted");
   }
   //user thakle token res pahtabo
   const jwtPayload = {
