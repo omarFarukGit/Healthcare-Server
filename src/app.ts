@@ -27,28 +27,28 @@ app.get("/", async (req: Request, res: Response) => {
   });
   res.send("Healthcare-Server running....");
 });
-app.post("/zod", (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const UserZodSchema = z.object({
-      name: z.string(),
-      age: z.number(),
-      isVerify: z.boolean(),
-      books: z.array(z.string()),
-    });
+// app.post("/zod", (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const UserZodSchema = z.object({
+//       name: z.string(),
+//       age: z.number(),
+//       isVerify: z.boolean(),
+//       books: z.array(z.string()),
+//     });
 
-    const payload = req.body;
+//     const payload = req.body;
 
-    const result = UserZodSchema.parse(payload);
+//     const result = UserZodSchema.parse(payload);
 
-    res.status(201).json({
-      success: true,
-      message: "welcome to ",
-      data: result,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+//     res.status(201).json({
+//       success: true,
+//       message: "welcome to ",
+//       data: result,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
 //api
 app.use("/api/auth", authRoutes);

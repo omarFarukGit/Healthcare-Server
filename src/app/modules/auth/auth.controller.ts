@@ -6,23 +6,25 @@ import { sendResponse } from "../../utils/sendRensponese";
 import httpStatus from "http-status";
 import z from "zod";
 
-const PatientRegiterZodSchema = z.object({
-  name: z.string(),
-  email: z.email(),
-  password: z.string(),
-  patinet: {
-    conatactNumber: z.string().optional(),
-  },
-});
+// const PatientRegiterZodSchema = z.object({
+//   name: z.string(),
+//   email: z.email(),
+//   password: z.string(),
+//   patinet: {
+//     conatactNumber: z.string().optional(),
+//   },
+// });
 
 const register = catchAsync(async (req: Request, res: Response) => {
-  const payload = PatientRegiterZodSchema.safeParse(req.body);
+  // const payload = PatientRegiterZodSchema.safeParse(req.body);
+  const payload = req.body;
 
-  if (!payload.success) {
-    throw new Error(payload.error.message);
-  }
+  // if (!payload.success) {
+  //   throw new Error(payload.error.message);
+  // }
 
-  const result = await authServices.register(payload.data);
+  // const result = await authServices.register(payload.data);
+  const result = await authServices.register(payload);
 
   const { user, patient, accessToken, refreshToken } = result;
   res.cookie("accessToken", accessToken, {
@@ -151,10 +153,35 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const forgotPassword = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+  await authServices.forgotPassword(payload);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "otp sent to email successfully",
+    data: null,
+  });
+});
+const resetPassword = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+  await authServices.resetPassword(payload);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "passord change successfully",
+    data: null,
+  });
+});
+
 export const authController = {
   register,
   login,
   refreshToken,
   me,
   googleLogin,
+  forgotPassword,
+  resetPassword,
 };
