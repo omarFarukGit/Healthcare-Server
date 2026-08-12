@@ -4,11 +4,25 @@ import { authServices } from "./auth.services";
 import config from "../../config";
 import { sendResponse } from "../../utils/sendRensponese";
 import httpStatus from "http-status";
+import z from "zod";
+
+const PatientRegiterZodSchema = z.object({
+  name: z.string(),
+  email: z.email(),
+  password: z.string(),
+  patinet: {
+    conatactNumber: z.string().optional(),
+  },
+});
 
 const register = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
+  const payload = PatientRegiterZodSchema.safeParse(req.body);
 
-  const result = await authServices.register(payload);
+  if (!payload.success) {
+    throw new Error(payload.error.message);
+  }
+
+  const result = await authServices.register(payload.data);
 
   const { user, patient, accessToken, refreshToken } = result;
   res.cookie("accessToken", accessToken, {
