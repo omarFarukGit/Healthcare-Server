@@ -1,0 +1,22 @@
+node_modules
+.env
+.env.*
+!.env.example
+dist
+# AI Assistant & IDE Configs
+.agents/
+.claude/
+.windsurf/
+.cursor/
+.copilot/
+.aider*
+.llm/
+
+generated/
+
+# Lock Files
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+pnpm-workspace.yaml
+.vscode
