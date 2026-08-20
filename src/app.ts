@@ -7,6 +7,7 @@ import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import z from "zod";
 import { redisClient } from "./app/lib/redis";
 import crypto from "crypto";
+import getBkashIdToken from "./app/lib/bkash";
 
 const app = express();
 
@@ -51,7 +52,12 @@ app.get("/", async (req: Request, res: Response) => {
 // });
 
 //api
-app.use("/api/auth", authRoutes);
+// app.use("/api/auth", authRoutes);
+
+app.get('/test', async (req: Request, res: Response) => { 
+  const grantTokeResult=await getBkashIdToken();
+  console.log(grantTokeResult,'t')
+ })
 
 //not found
 app.use(notFound);
@@ -61,3 +67,4 @@ app.use(globalErrorHandler);
 export default app;
 
 app.get("/");
+

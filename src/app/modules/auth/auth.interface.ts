@@ -7,6 +7,13 @@ export interface IRegisterPatientPayload {
   name: string;
   email: string;
   password: string;
+  patient:{
+    contactNumber?:string
+  }
+}
+
+export interface IVerifyEmailpayload{
+  email:string,otp:string
 }
 
 export interface IGooleLoginPayload {

@@ -24,7 +24,7 @@ const register = catchAsync(async (req: Request, res: Response) => {
   // }
 
   // const result = await authServices.register(payload.data);
-  const result = await authServices.register(payload);
+  const result = await authServices.verifyPatientEmail(payload);
 
   const { user, patient, accessToken, refreshToken } = result;
   res.cookie("accessToken", accessToken, {
@@ -45,13 +45,75 @@ const register = catchAsync(async (req: Request, res: Response) => {
     statusCode: httpStatus.CREATED,
     message: "user created successfully",
     data: {
-      user,
-      patient,
-      accessToken,
-      refreshToken,
+      accessToken,refreshToken,user,patient
     },
   });
 });
+const verifyPasentEmail = catchAsync(async (req: Request, res: Response) => {
+
+  const payload = req.body;
+
+
+  const result = await authServices.register(payload);
+
+  // const { user, patient, accessToken, refreshToken } = result;
+  // res.cookie("accessToken", accessToken, {
+  //   httpOnly: true,
+  //   secure: true,
+  //   maxAge: 100 * 60 * 60 * 24,
+  //   sameSite: "none",
+  // });
+  // res.cookie("refreshToken", refreshToken, {
+  //   httpOnly: true,
+  //   secure: true,
+  //   maxAge: 100 * 60 * 60 * 24,
+  //   sameSite: "none",
+  // });
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "user created successfully",
+    data: null,
+  });
+});
+// const register = catchAsync(async (req: Request, res: Response) => {
+//   // const payload = PatientRegiterZodSchema.safeParse(req.body);
+//   const payload = req.body;
+
+//   // if (!payload.success) {
+//   //   throw new Error(payload.error.message);
+//   // }
+
+//   // const result = await authServices.register(payload.data);
+//   const result = await authServices.register(payload);
+
+//   const { user, patient, accessToken, refreshToken } = result;
+//   res.cookie("accessToken", accessToken, {
+//     httpOnly: true,
+//     secure: true,
+//     maxAge: 100 * 60 * 60 * 24,
+//     sameSite: "none",
+//   });
+//   res.cookie("refreshToken", refreshToken, {
+//     httpOnly: true,
+//     secure: true,
+//     maxAge: 100 * 60 * 60 * 24,
+//     sameSite: "none",
+//   });
+
+//   sendResponse(res, {
+//     success: true,
+//     statusCode: httpStatus.CREATED,
+//     message: "user created successfully",
+//     data: {
+//       user,
+//       patient,
+//       accessToken,
+//       refreshToken,
+//     },
+//   });
+// });
 
 const login = catchAsync(async (req: Request, res: Response) => {
   const result = await authServices.login(req.body);
@@ -178,6 +240,7 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
 
 export const authController = {
   register,
+  verifyPasentEmail,
   login,
   refreshToken,
   me,
