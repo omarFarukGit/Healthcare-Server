@@ -9,8 +9,11 @@ const getBkashIdToken=async()=>{
     let bkashIdToken= await redisClient.get(idTokenKey)
     const bkashIdTokenTTl=await redisClient.ttl(idTokenKey)
     let bkashRefreshToken=await redisClient.get(refreshTokenKey)
-
-    if(bkashIdTokenTTl<=600 && bkashRefreshToken){
+    const bkashRefreshTokenTTl=await redisClient.ttl(refreshTokenKey)
+//bkash id token reamining time is less than equal 10 minutes
+// bkash refresh token must exits
+//bkash refresh token remainig time is more than 10 minites
+    if((bkashIdTokenTTl<=600 || !bkashIdToken) && bkashRefreshToken && bkashRefreshTokenTTl>600){
             const responseRefreshToken=await fetch(`${process.env.BKASH_BASER_URL}/tokenized/checkout/token/refresh`,{
         method:"POST",
         headers:{
@@ -29,6 +32,7 @@ const bkashRefreshTokenResult=await responseRefreshToken.json();
 
 bkashIdToken=bkashRefreshTokenResult.id_token as string
 
+
 await redisClient.set(idTokenKey,bkashIdToken,{
     expiration:{
         type:"EX",
@@ -38,7 +42,7 @@ await redisClient.set(idTokenKey,bkashIdToken,{
 return bkashIdToken
     }
 
-    if(bkashIdToken){
+    if(bkashIdTokenTTl>600){
         return bkashIdToken
     }
     const response=await fetch(`${process.env.BKASH_BASER_URL}/tokenized/checkout/token/grant`,{
@@ -71,7 +75,7 @@ return bkashIdToken
   await redisClient.set(refreshTokenKey,result.refresh_token,{
         expiration:{
             type:'EX',
-            value:60*60
+            value:60*60*24*28
         }
     })
 
