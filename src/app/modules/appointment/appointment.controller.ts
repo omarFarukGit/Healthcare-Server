@@ -1,20 +1,22 @@
 import { Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendRensponese";
+import { appointmentServices } from "./appointment.service";
 
 
-const appointmentCreate=catchAsync(async(req:Request,res:Response)=>{
+const bookAppointment=catchAsync(async(req:Request,res:Response)=>{
 
+    const result=await appointmentServices.bookAppointment()
     sendResponse(res,{
         success:true,
         statusCode:201,
         message:'appointment created successfully',
-        data:null
+        data:result
         
     })
 })
 
 
 export const appointmentContoller={
-    appointmentCreate
+    bookAppointment
 }
